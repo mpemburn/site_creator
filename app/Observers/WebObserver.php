@@ -3,22 +3,20 @@
 namespace App\Observers;
 
 use App\Models\FoundText;
+use App\Services\PageConversionService;
 use DOMDocument;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Log;
 
 class WebObserver extends CrawlObserver
 {
-    protected string $find;
-    protected bool $echo;
+    protected PageConversionService $pageService;
 
-    public function __construct(string $find, bool $echo = false)
+    public function __construct(string $baseUrl, string $siteName, string $blogId, string $domain)
     {
-        $this->find = $find;
-        $this->echo = $echo;
+        $this->pageService = new PageConversionService($baseUrl, $siteName, $blogId, $domain);
     }
 
     /**
@@ -39,6 +37,8 @@ class WebObserver extends CrawlObserver
         ?UriInterface     $foundOnUrl = null
     ): void
     {
+        echo 'Reading: ' . $url . PHP_EOL;
+
         $doc = new DOMDocument();
         $body = $response->getBody();
 
@@ -49,6 +49,9 @@ class WebObserver extends CrawlObserver
         @$doc->loadHTML($body);
         //# save HTML
         $content = $doc->saveHTML();
+
+        $this->pageService->processPage($content);
+
     }
 
     /**
@@ -61,7 +64,7 @@ class WebObserver extends CrawlObserver
         ?UriInterface    $foundOnUrl = null
     ): void
     {
-        echo 'crawlFailed: ' . $url . PHP_EOL;
+        //echo 'crawlFailed: ' . $url . PHP_EOL;
     }
 
     /**
@@ -70,4 +73,5 @@ class WebObserver extends CrawlObserver
     public function finishedCrawling(): void
     {
     }
+
 }
