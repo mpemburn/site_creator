@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Models\FoundText;
+use App\Helpers\SiteInfo;
 use App\Services\PageConversionService;
 use DOMDocument;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
@@ -12,11 +12,13 @@ use GuzzleHttp\Exception\RequestException;
 
 class WebObserver extends CrawlObserver
 {
+    protected SiteInfo $info;
     protected PageConversionService $pageService;
 
-    public function __construct(string $baseUrl, string $siteName, string $blogId, string $domain)
+    public function __construct(SiteInfo $info)
     {
-        $this->pageService = new PageConversionService($baseUrl, $siteName, $blogId, $domain);
+        $this->info = $info;
+        $this->pageService = new PageConversionService($info);
     }
 
     /**
@@ -37,7 +39,16 @@ class WebObserver extends CrawlObserver
         ?UriInterface     $foundOnUrl = null
     ): void
     {
+        if (stripos($url, $this->info->baseUrl) === false) {
+            return;
+        }
+        $pathParts = pathinfo($url);
+        if (! in_array($pathParts['extension'], SiteInfo::SERVER_PAGE_EXTENSIONS)) {
+            return;
+        }
+
         echo 'Reading: ' . $url . PHP_EOL;
+        $this->info->setPageName($url);
 
         $doc = new DOMDocument();
         $body = $response->getBody();

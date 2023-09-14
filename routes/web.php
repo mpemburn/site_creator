@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Post;
+use App\Services\DatabaseService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,5 +21,6 @@ Route::get('/', function () {
 });
 
 Route::get('/dev', function () {
+    dd(pathinfo('https://www2.clarku.edu/faculty/sgranados/Research.html'));
     // Do what thou wilt
 });
