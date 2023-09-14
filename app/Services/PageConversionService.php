@@ -2,20 +2,17 @@
 
 namespace App\Services;
 
-use App\Helpers\SiteInfo;
 use App\Models\Post;
-use App\Sql\PostCreate;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class PageConversionService
 {
-    protected SiteInfo $info;
+    protected SiteInfoService $info;
     protected ?string $header = null;
 
-    public function __construct(SiteInfo $info)
+    public function __construct(SiteInfoService $info)
     {
         $this->info = $info;
 
@@ -27,9 +24,10 @@ class PageConversionService
         $rawContent = $content;
         // Get rid of header and footer
         $content = $this->extractBody($content);
-        if (! $this->header) {
-            // TODO: Figure out where to put the header.
-            $this->header = $this->buildHeader($content, $rawContent);
+        if (! $this->info->hasHeader) {
+            // Extract any local CSS files from header
+            (new HeaderService($this->info))->parse($this->getHeader($content, $rawContent));
+            $this->info->hasHeader = true;
         }
 
         if (stripos($content, '<img') !== false) {
@@ -71,19 +69,23 @@ class PageConversionService
         return $title ?: $this->info->pageName;
     }
 
-    protected function buildHeader(string $content, string $rawContent): string
+    protected function getHeader(string $content, string $rawContent): string
     {
         return str_replace($content, '', $rawContent);
     }
 
     protected function processImages(array $images, string $content): string
     {
+        // Find and replace image paths on page
         collect($images)->each(function ($image) use (&$content) {
             preg_match('/(src=")([^">]+)(")/', $image, $matches);
             $oldPath = $matches[2] ?: '';
-            if (!str_starts_with($oldPath, 'http')) {
+            if (! str_starts_with($oldPath, 'http')) {
                 $newPath = $this->saveImage($oldPath);
                 if ($newPath) {
+                    // Create a post record for the image
+                    $this->createAttachment($newPath);
+
                     $content = str_replace($oldPath, $newPath, $content);
                 }
             }
@@ -94,7 +96,7 @@ class PageConversionService
 
     protected function saveImage($imgSrc): ?string
     {
-        if (! UrlService::testUrl($this->info->baseUrl . $imgSrc)) {
+        if (! CurlService::testUrl($this->info->baseUrl . $imgSrc)) {
             return null;
         }
         $binary = file_get_contents($this->info->baseUrl . $imgSrc);
@@ -105,11 +107,7 @@ class PageConversionService
 
     protected function saveAsPost(string $content): void
     {
-        DatabaseService::setDb('multisite');
-        $postTable = 'wp_' . $this->info->blogId . '_posts';
-        if (! Schema::hasTable($postTable)) {
-            PostCreate::make($postTable);
-        }
+        $postTable = $this->info->postTables['posts'];
 
         $last = DB::select("SELECT MAX(ID) AS max FROM {$postTable}");
         $lastId = ((int) current($last)->max) + 1;
@@ -126,5 +124,24 @@ class PageConversionService
             'post_content_filtered' => '',
             'guid' => 'https://' . $this->info->domain . '/' . $this->info->siteName . '/?p=' . $lastId
         ]);
+    }
+
+    protected function createAttachment(string $attachmentPath): void
+    {
+        $pathParts = pathinfo($attachmentPath);
+
+        $post = new Post();
+        $post->setTable($this->info->postTables['posts']);
+        $post->create([
+            'post_content' => '',
+            'post_title' => $pathParts['filename'],
+            'post_excerpt' => '',
+            'post_type' => 'attachment',
+            'to_ping' => '',
+            'pinged' => '',
+            'post_content_filtered' => '',
+            'guid' => $attachmentPath
+        ]);
+
     }
 }

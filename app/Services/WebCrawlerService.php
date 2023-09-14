@@ -1,26 +1,24 @@
 <?php
 namespace App\Services;
 
-use App\Helpers\SiteInfo;
 use App\Models\BlogList;
 use App\Observers\WebObserver;
 use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Spatie\Crawler\Crawler;
 
 class WebCrawlerService
 {
-    protected SiteInfo $info;
+    protected SiteInfoService $info;
 
-    public function __construct(SiteInfo $info)
+    public function __construct(SiteInfoService $info)
     {
         $this->info = $info;
     }
 
     public function fetchContent() {
         $options = [RequestOptions::ALLOW_REDIRECTS => true, RequestOptions::TIMEOUT => 30];
-        $this->getDatabaseBlogInfo($this->info->dbName);
+        $this->setDatabaseBlogInfo();
 
         //# initiate crawler
         Crawler::create($options)
@@ -34,15 +32,17 @@ class WebCrawlerService
         return true;
     }
 
-    protected function getDatabaseBlogInfo(string $dbName): void
+    protected function setDatabaseBlogInfo(): void
     {
-        DatabaseService::setDb($dbName);
+        DatabaseService::setDb($this->info->dbName);
 
         // Get the current highest blog ID from the destination
         $blogs = DB::select('SELECT domain, MAX(blog_id) AS max FROM wp_blogs GROUP BY domain');
 
         $this->info->domain = current($blogs)->domain;
         $this->info->blogId = (int) current($blogs)->max + 1;
+        $this->info->createSubsiteTables();
+
     }
 
 }

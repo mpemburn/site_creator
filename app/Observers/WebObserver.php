@@ -2,20 +2,20 @@
 
 namespace App\Observers;
 
-use App\Helpers\SiteInfo;
 use App\Services\PageConversionService;
+use App\Services\SiteInfoService;
 use DOMDocument;
-use Spatie\Crawler\CrawlObservers\CrawlObserver;
-use Psr\Http\Message\UriInterface;
-use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\CrawlObservers\CrawlObserver;
 
 class WebObserver extends CrawlObserver
 {
-    protected SiteInfo $info;
+    protected SiteInfoService $info;
     protected PageConversionService $pageService;
 
-    public function __construct(SiteInfo $info)
+    public function __construct(SiteInfoService $info)
     {
         $this->info = $info;
         $this->pageService = new PageConversionService($info);
@@ -43,7 +43,10 @@ class WebObserver extends CrawlObserver
             return;
         }
         $pathParts = pathinfo($url);
-        if (! in_array($pathParts['extension'], SiteInfo::SERVER_PAGE_EXTENSIONS)) {
+        if (
+            isset($pathParts['extension'])
+            && ! in_array($pathParts['extension'], SiteInfoService::SERVER_PAGE_EXTENSIONS)
+        ) {
             return;
         }
 

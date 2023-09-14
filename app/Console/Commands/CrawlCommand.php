@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\SiteInfo;
+use App\Services\SiteInfoService;
 use App\Services\WebCrawlerService;
 use Illuminate\Console\Command;
 
@@ -13,7 +13,7 @@ class CrawlCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'web:crawl {--url=} {--home=} {--site=} {--db=}';
+    protected $signature = 'web:crawl {--url=} {--home=} {--site=} {--db=} {--prefix=} {--theme=}';
 
     /**
      * The console command description.
@@ -22,20 +22,18 @@ class CrawlCommand extends Command
      */
     protected $description = 'Crawl a web page';
 
-    protected int $maxBlogId;
-    protected string $domain;
-
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $info = new SiteInfo();
+        $info = new SiteInfoService();
         $info->baseUrl = $this->option('url');
         $info->homePage = $this->option('home');
         $info->dbName = $this->option('db');
+        $info->prefix = $this->option('prefix') ?: 'wp_';
         $info->siteName = $this->option('site');
-
+        $info->theme = $this->option('theme') ?: 'wp_';
 
         (new WebCrawlerService($info))->fetchContent();
     }
