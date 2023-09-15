@@ -39,7 +39,7 @@ class WebObserver extends CrawlObserver
         ?UriInterface     $foundOnUrl = null
     ): void
     {
-        if (stripos($url, $this->info->baseUrl) === false) {
+        if (stripos($url, $this->info->url) === false) {
             return;
         }
         $pathParts = pathinfo($url);

@@ -49,7 +49,7 @@ class HeaderService
         preg_match_all("/(<{$tag})(.*)(>)/", $this->header, $matches);
         foreach (current($matches) as $match) {
             preg_match('/(' . $attribute . '=")([^">]+)(")/', $match, $href);
-            $url = isset($href[2]) ? $this->info->baseUrl . ($href[2]) : null;
+            $url = isset($href[2]) ? $this->info->url . ($href[2]) : null;
             if (CurlService::testUrl($url)) {
                 $content = CurlService::getContent($url);
                 $target[] = $content;
@@ -66,6 +66,7 @@ class HeaderService
         $post->setTable($this->info->postTables['posts']);
         $post->create([
             'post_content' => implode("\n", $this->cssContent),
+            'post_author' => 1,
             'post_title' => $this->info->theme,
             'post_excerpt' => '',
             'post_type' => 'custom_css',

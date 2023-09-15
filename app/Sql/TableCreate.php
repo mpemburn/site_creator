@@ -13,5 +13,7 @@ abstract class TableCreate
         $sql = static::statement($table);
 
         DB::statement($sql);
+        // Make sure increment counter is reset
+        DB::statement("TRUNCATE TABLE {$table};");
     }
 }

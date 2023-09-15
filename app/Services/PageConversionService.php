@@ -16,7 +16,7 @@ class PageConversionService
     {
         $this->info = $info;
 
-        $this->info->uploadPath = $info->blogId . '/' . Carbon::now()->format('Y/m/');
+        $this->info->uploadPath = $info->site . '/' . $info->blogId . '/' . Carbon::now()->format('Y/m/');
     }
 
     public function processPage(string $content)
@@ -46,7 +46,7 @@ class PageConversionService
         collect(explode("\n", $content))
             ->each(function ($line) use (&$body, &$isBody) {
                 if (stripos($line, '<title') !== false) {
-                    $this->info->title = $this->extractTitle($line);
+                    $this->info->pageTitle = $this->extractTitle($line);
                 }
                 if (! $isBody) {
                     $isBody = stripos($line, '<body') !== false;
@@ -96,10 +96,10 @@ class PageConversionService
 
     protected function saveImage($imgSrc): ?string
     {
-        if (! CurlService::testUrl($this->info->baseUrl . $imgSrc)) {
+        if (! CurlService::testUrl($this->info->url . $imgSrc)) {
             return null;
         }
-        $binary = file_get_contents($this->info->baseUrl . $imgSrc);
+        $binary = file_get_contents($this->info->url . $imgSrc);
         Storage::put($this->info->uploadPath . $imgSrc, $binary);
 
         return 'https://' . $this->info->domain . '/wp-content/uploads/sites/' . $this->info->uploadPath . $imgSrc;
@@ -116,13 +116,14 @@ class PageConversionService
         $post->setTable($postTable);
         $post->create([
             'post_content' => trim($content),
-            'post_title' => trim($this->info->title),
+            'post_author' => 1,
+            'post_title' => trim($this->info->pageTitle),
             'post_excerpt' => '',
             'post_type' => 'page',
             'to_ping' => '',
             'pinged' => '',
             'post_content_filtered' => '',
-            'guid' => 'https://' . $this->info->domain . '/' . $this->info->siteName . '/?p=' . $lastId
+            'guid' => 'https://' . $this->info->domain . '/' . $this->info->site . '/?p=' . $lastId
         ]);
     }
 
@@ -134,6 +135,7 @@ class PageConversionService
         $post->setTable($this->info->postTables['posts']);
         $post->create([
             'post_content' => '',
+            'post_author' => 1,
             'post_title' => $pathParts['filename'],
             'post_excerpt' => '',
             'post_type' => 'attachment',

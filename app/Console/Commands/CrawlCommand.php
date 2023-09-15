@@ -27,13 +27,11 @@ class CrawlCommand extends Command
      */
     public function handle()
     {
-        $info = new SiteInfoService();
-        $info->baseUrl = $this->option('url');
-        $info->homePage = $this->option('home');
-        $info->dbName = $this->option('db');
-        $info->prefix = $this->option('prefix') ?: 'wp_';
-        $info->siteName = $this->option('site');
-        $info->theme = $this->option('theme') ?: 'wp_';
+        $info = (new SiteInfoService())
+            ->setOptions($this->options())
+            ->setDatabaseBlogInfo()
+            ->createSubsiteTables()
+            ->insertBlogRecord();
 
         (new WebCrawlerService($info))->fetchContent();
     }
