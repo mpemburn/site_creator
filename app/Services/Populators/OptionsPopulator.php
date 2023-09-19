@@ -8,7 +8,7 @@ class OptionsPopulator extends Populator
         'home' => '',
         'blogname' => '',
         'blogdescription' => '',
-        'admin_email' => '',
+        '' => '',
         'template' => '',
         'stylesheet' => '',
     ];
@@ -17,6 +17,9 @@ class OptionsPopulator extends Populator
     {
         $this->replace['siteurl'] = $this->infoService->destUrl;
         $this->replace['home'] = $this->infoService->destUrl;
+        $this->replace['blogname'] = $this->infoService->site;
         $this->replace['template'] = $this->infoService->theme;
+        $this->replace['stylesheet'] = $this->infoService->theme;
+        $this->replace['admin_email'] = $this->infoService->adminEmail;
     }
 }

@@ -7,6 +7,7 @@ use App\Services\SiteInfoService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,17 @@ Route::get('/', function () {
 
 Route::get('/dev', function () {
     DatabaseService::setDb('wpsandbox');
-    \App\Factories\PopulateTableFactory::build('options', 'wp_2_options');
+
+    // Get the current highest blog ID from the destination
+    $options = DB::select('SELECT * FROM wp_options');
+    collect($options)->each(function ($option) {
+        if ($option->option_name === 'admin_email') {
+            $name = Str::camel($option->option_name);
+            !d($name, $option);
+        }
+    });
+
+//    \App\Factories\PopulateTableFactory::build('options', 'wp_2_options');
     //    $info->homePage = $this->option('home');
 //    $info->dbName = $this->option('db');
 //    $info->prefix = $this->option('prefix') ?: 'wp_';
@@ -38,3 +49,7 @@ Route::get('/dev', function () {
 //    $service->blogId = sgranados;
 //    $service->createSubsiteTables();
 });
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

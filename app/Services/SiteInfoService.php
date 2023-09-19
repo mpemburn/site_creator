@@ -7,6 +7,7 @@ use App\Sql\PostCreate;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class SiteInfoService
 {
@@ -54,11 +55,12 @@ class SiteInfoService
     public string $domain;
     public string $pageTitle;
     public string $pageName;
+    public string $adminEmail = '';
     public string $currentTable;
     public array $postTables = [];
     public bool $hasHeader = false;
 
-    public function setOptions(array $options): self
+    public function setCommandOptions(array $options): self
     {
         collect($options)->each(function ($option, $key) {
             if ($option) {
@@ -106,6 +108,24 @@ class SiteInfoService
         $this->domain = current($blogs)->domain;
         $this->blogId = (int) current($blogs)->max + 1;
         $this->destUrl = 'https://' . $this->domain . '/' . $this->site . '/';
+
+        return $this;
+    }
+
+    public function setDatabaseOptionInfo(): self
+    {
+        DatabaseService::setDb($this->db);
+
+        // Get the current highest blog ID from the destination
+        $options = DB::select('SELECT * FROM wp_options');
+        collect($options)->each(function ($option) {
+            if ($option->option_name === 'admin_email') {
+                $property = Str::camel($option->option_name);
+                if (property_exists($this, $property)) {
+                    $this->$property = $option->option_value;
+                }
+            }
+        });
 
         return $this;
     }

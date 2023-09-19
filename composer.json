@@ -10,6 +10,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
+        "laravel/ui": "^4.2",
         "kint-php/kint": "^4.2",
         "spatie/async": "^1.5",
         "spatie/crawler": "^7.1",

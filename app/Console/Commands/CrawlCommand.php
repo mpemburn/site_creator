@@ -28,7 +28,7 @@ class CrawlCommand extends Command
     public function handle()
     {
         $info = (new SiteInfoService())
-            ->setOptions($this->options())
+            ->setCommandOptions($this->options())
             ->setDatabaseBlogInfo()
             ->createSubsiteTables()
             ->insertBlogRecord();
