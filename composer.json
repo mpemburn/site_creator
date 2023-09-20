@@ -15,7 +15,8 @@
         "spatie/async": "^1.5",
         "spatie/crawler": "^7.1",
         "ext-dom": "*",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-exif": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

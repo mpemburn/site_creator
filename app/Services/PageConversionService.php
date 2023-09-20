@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Helpers\RegexHelper;
 use App\Models\Post;
+use App\Models\Postmeta;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -15,8 +17,6 @@ class PageConversionService
     public function __construct(SiteInfoService $info)
     {
         $this->info = $info;
-
-        $this->info->uploadPath = $info->site . '/' . $info->blogId . '/' . Carbon::now()->format('Y/m/');
     }
 
     public function processPage(string $content)
@@ -78,15 +78,14 @@ class PageConversionService
     {
         // Find and replace image paths on page
         collect($images)->each(function ($image) use (&$content) {
-            preg_match('/(src=")([^">]+)(")/', $image, $matches);
-            $oldPath = $matches[2] ?: '';
-            if (! str_starts_with($oldPath, 'http')) {
-                $newPath = $this->saveImage($oldPath);
+            $originalPath = RegexHelper::extractAttribute('src', $image);
+            if (! str_starts_with($originalPath, 'http')) {
+                $newPath = $this->saveImage($originalPath);
                 if ($newPath) {
                     // Create a post record for the image
-                    $this->createAttachment($newPath);
-
-                    $content = str_replace($oldPath, $newPath, $content);
+                    $postId = $this->createAttachment($newPath);
+                    $this->createAttachmentMeta($originalPath, $postId);
+                    $content = str_replace($originalPath, $newPath, $content);
                 }
             }
         });
@@ -127,13 +126,13 @@ class PageConversionService
         ]);
     }
 
-    protected function createAttachment(string $attachmentPath): void
+    protected function createAttachment(string $attachmentPath): ?string
     {
         $pathParts = pathinfo($attachmentPath);
 
         $post = new Post();
         $post->setTable($this->info->postTables['posts']);
-        $post->create([
+        $result = $post->create([
             'post_content' => '',
             'post_author' => 1,
             'post_title' => $pathParts['filename'],
@@ -145,5 +144,22 @@ class PageConversionService
             'guid' => $attachmentPath
         ]);
 
+        return$result->ID;
+    }
+
+    protected function createAttachmentMeta(string $path, string $postId)
+    {
+        collect([
+            '_wp_attached_file' => $this->info->yearMonth . '/' . $path,
+            '_wp_attachment_metadata' => serialize(ImageService::getImageMeta($this->info->url . $path))
+        ])->each(function ($value, $key) use ($postId) {
+            $postmeta = new Postmeta();
+            $postmeta->setTable($this->info->postTables['postmeta']);
+            $postmeta->create([
+                'post_id' => $postId,
+                'meta_key' => $key,
+                'meta_value' => $value,
+            ]);
+        });
     }
 }

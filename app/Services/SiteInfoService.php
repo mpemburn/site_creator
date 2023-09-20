@@ -4,7 +4,8 @@ namespace App\Services;
 use App\Factories\PopulateTableFactory;
 use App\Sql\OptionsCreate;
 use App\Sql\PostCreate;
-use Carbon\Carbon;
+use App\Sql\PostmetaCreate;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -29,7 +30,7 @@ class SiteInfoService
         'comments' => null,
         'links' => null,
         'options' => OptionsCreate::class,
-        'postmeta' => null,
+        'postmeta' => PostmetaCreate::class,
         'posts' => PostCreate::class,
         'registration_log' => null,
         'signups' => null,
@@ -51,6 +52,7 @@ class SiteInfoService
     public string $prefix = 'wp_';
     public string $theme = 'twentytwentythree';
     public string $blogId;
+    public string $yearMonth;
     public string $uploadPath;
     public string $domain;
     public string $pageTitle;
@@ -108,6 +110,8 @@ class SiteInfoService
         $this->domain = current($blogs)->domain;
         $this->blogId = (int) current($blogs)->max + 1;
         $this->destUrl = 'https://' . $this->domain . '/' . $this->site . '/';
+        $this->yearMonth = Carbon::now()->format('Y/m/');
+        $this->uploadPath = $this->site . '/' . $this->blogId . '/' . $this->yearMonth;
 
         return $this;
     }

@@ -1,0 +1,30 @@
+.wrapper {
+    max-width: 40vw;
+    list-style-type: none;
+    padding: 0;
+}
+.form-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: .5em;
+}
+.form-row > label {
+    font-weight: bold;
+    padding: .5em 1em .5em 0;
+    flex: 1;
+}
+.form-row > input {
+    flex: 2;
+    max-height: 2rem;
+}
+span.required {
+    font-size: 10pt;
+    color: #c00;
+}
+div.box {
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+div.box.source {
+    margin-bottom: 0.5rem;
+}

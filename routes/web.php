@@ -5,8 +5,10 @@ use App\Services\DatabaseService;
 use App\Services\HeaderService;
 use App\Services\SiteInfoService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /*
@@ -27,15 +29,15 @@ Route::get('/', function () {
 Route::get('/dev', function () {
     DatabaseService::setDb('wpsandbox');
 
-    // Get the current highest blog ID from the destination
-    $options = DB::select('SELECT * FROM wp_options');
-    collect($options)->each(function ($option) {
-        if ($option->option_name === 'admin_email') {
-            $name = Str::camel($option->option_name);
-            !d($name, $option);
-        }
+    collect([
+        'https://s28151.pcdn.co/wp-content/uploads/2021/10/2021-Family-Visit-Campus-Clark-University-1340x550.jpg',
+        "https://www.clarku.edu/wp-content/themes/clarku/assets/img/main-logo.svg",
+        'https://www2.clarku.edu/faculty/mwiser/learning%20and%20instruction.gif',
+        Storage::path('Sample BMP Image File Download.bmp'),
+    ])->each(function ($image) {
+        $metaData = \App\Services\ImageService::getMimeType($image);
+        !d($metaData);
     });
-
 //    \App\Factories\PopulateTableFactory::build('options', 'wp_2_options');
     //    $info->homePage = $this->option('home');
 //    $info->dbName = $this->option('db');
