@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use App\Helpers\ImageHelper;
 use App\Helpers\RegexHelper;
 use App\Models\Post;
 use App\Models\Postmeta;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -151,7 +151,7 @@ class PageConversionService
     {
         collect([
             '_wp_attached_file' => $this->info->yearMonth . '/' . $path,
-            '_wp_attachment_metadata' => serialize(ImageService::getImageMeta($this->info->url . $path))
+            '_wp_attachment_metadata' => serialize(ImageHelper::getImageMeta($this->info->url . $path))
         ])->each(function ($value, $key) use ($postId) {
             $postmeta = new Postmeta();
             $postmeta->setTable($this->info->postTables['postmeta']);

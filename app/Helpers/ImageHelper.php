@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Helpers;
 
-use App\Helpers\RegexHelper;
-
-class ImageService
+class ImageHelper
 {
     const WP_IMAGE_META = [
         'width' => 0,

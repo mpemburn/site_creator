@@ -2,10 +2,10 @@
 
 namespace App\Services\Populators;
 
+use App\Helpers\CsvHelper;
+use App\Helpers\SqlHelper;
 use App\Interfaces\PopulatorInterface;
-use App\Services\CsvService;
 use App\Services\SiteInfoService;
-use App\Services\SqlService;
 
 abstract class Populator implements PopulatorInterface
 {
@@ -31,13 +31,13 @@ abstract class Populator implements PopulatorInterface
     public function readCsv()
     {
         $csvPath = $this->basePath . 'wp_' . $this->key . '.csv';
-        $csvData = CsvService::read($csvPath);
+        $csvData = CsvHelper::read($csvPath);
         collect($csvData)->each(function ($row) {
             if ($row['option_value'] === 'placeholder') {
                 $row['option_value'] = $this->replace[$row['option_name']];
             }
 
-            SqlService::insert($row, $this->tableName);
+            SqlHelper::insert($row, $this->tableName);
         });
     }
 }

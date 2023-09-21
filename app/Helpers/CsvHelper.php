@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Helpers;
 
-class CsvService
+class CsvHelper
 {
     public static function read(string $path): array
     {

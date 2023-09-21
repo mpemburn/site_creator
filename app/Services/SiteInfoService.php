@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\Factories\PopulateTableFactory;
+use App\Helpers\SqlHelper;
 use App\Sql\OptionsCreate;
 use App\Sql\PostCreate;
 use App\Sql\PostmetaCreate;
@@ -153,7 +154,7 @@ class SiteInfoService
             'lang_id' => 0,
         ];
 
-        SqlService::insert($data, $tableName);
+        SqlHelper::insert($data, $tableName);
 
         return $this;
     }

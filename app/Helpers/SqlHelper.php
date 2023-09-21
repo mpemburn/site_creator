@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services;
+namespace App\Helpers;
 
 use Illuminate\Support\Facades\DB;
 
-class SqlService
+class SqlHelper
 {
     public static function insert($data, string $tableName): bool
     {
