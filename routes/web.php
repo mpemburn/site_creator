@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\SourceHelper;
 use App\Services\DatabaseService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -22,17 +23,9 @@ Route::get('/', function () {
 });
 
 Route::get('/dev', function () {
-    $path = '/Users/MPemburn/Sandbox/wpsandbox';
-    $does = file_exists($path);
-
-    if ($does) {
-        $themesPath = $path . '/wp-content/themes';
-        $prefix = \App\Helpers\WordPressHelper::getPrefix($path);
-        $themes = \App\Helpers\WordPressHelper::getThemesArray($themesPath);
-
-        !d($prefix);
-        !d($themes);
-    }
+    $url = 'https://www2.clarku.edu/faculty/sgranados/Home.html';
+    $info = pathinfo($url);
+    !d($info);
 });
 
 Auth::routes();
@@ -41,3 +34,5 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/db_test', [App\Http\Controllers\UiController::class, 'dbExists'])->name('db_test');
 Route::get('/path_test', [App\Http\Controllers\UiController::class, 'pathExists'])->name('path_test');
 Route::get('/url_test', [App\Http\Controllers\UiController::class, 'urlExists'])->name('url_test');
+Route::get('/find_home', [App\Http\Controllers\UiController::class, 'findHome'])->name('find_home');
+Route::get('/home_test', [App\Http\Controllers\UiController::class, 'homeExists'])->name('home_test');

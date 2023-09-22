@@ -52,7 +52,7 @@ class HeaderService
             preg_match('/(' . $attribute . '=")([^">]+)(")/', $match, $href);
             $url = isset($href[2]) ? $this->info->url . ($href[2]) : null;
             if (CurlHelper::testUrl($url)) {
-                $content = CurlHelper::getContent($url);
+                $content = CurlHelper::getContents($url);
                 $target[] = $content;
             }
 

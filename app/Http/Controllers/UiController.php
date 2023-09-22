@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\CurlHelper;
-use App\Helpers\FileHelper;
+use App\Helpers\SourceHelper;
 use App\Helpers\WordPressHelper;
 use App\Services\DatabaseService;
 use Exception;
@@ -28,12 +28,12 @@ class UiController extends Controller
             //
         }
 
-        return response()->json(['success' => $success, 'message' => 'Database does not exist.']);
+        return response()->json(['success' => $success, 'message' => __('ui.missing.db')]);
     }
     public function pathExists(Request $request): JsonResponse
     {
         $path = request('value');
-        $success = file_exists($path);
+        $success = file_exists($path . '/wp-config.php');
 
         $themes = [];
         if ($success) {
@@ -44,7 +44,7 @@ class UiController extends Controller
         return response()->json([
             'success' => $success,
             'themes' => $themes,
-            'message' => 'Path does not exist.'
+            'message' => __('ui.missing.path')
         ]);
     }
     public function urlExists(Request $request): JsonResponse
@@ -52,6 +52,39 @@ class UiController extends Controller
         $url = request('value');
         $success = CurlHelper::testUrl($url);
 
-        return response()->json(['success' => $success, 'message' => 'URL does not exist.']);
+        return response()->json([
+            'success' => $success,
+            'message' => __('ui.missing.url')]
+        );
+    }
+
+    public function findHome(Request $request): JsonResponse
+    {
+        $url = request('value');
+        $success = CurlHelper::testUrl($url);
+
+        $home = SourceHelper::getIndexFile($url);
+        if ($home) {
+            $home = SourceHelper::getForwardPage($url, $home);
+        }
+
+        return response()->json([
+            'success' => $success,
+            'home' => $home,
+            'message' => __('ui.missing.home')
+        ]);
+    }
+    public function homeExists(Request $request): JsonResponse
+    {
+        $url = request('value');
+        $success = CurlHelper::testUrl($url);
+
+        $info = pathinfo($url);
+
+        return response()->json([
+            'success' => $success,
+            'home' => $info['basename'],
+            'message' => __('ui.missing.home')
+        ]);
     }
 }

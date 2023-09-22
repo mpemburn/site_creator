@@ -16,17 +16,28 @@ class CurlHelper
         return ((int) $code) === 200;
     }
 
-    public static function getContent(string $url): string
+    public static function getContents(string $url): string
     {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_REFERER, 'http://www.example.com/1');
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/sgranados.0 (compatible;)");
+        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
         $response = curl_exec($ch);
         curl_close($ch);
 
         return $response;
+    }
+
+    public static function getContentsAsArray(string $url): array
+    {
+        $contents = static::getContents($url);
+
+        if ($contents) {
+            return explode("\n", $contents);
+        }
+
+        return [];
     }
 }

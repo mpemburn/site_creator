@@ -13,17 +13,6 @@ use Illuminate\Support\Str;
 
 class SiteInfoService
 {
-    public const SERVER_PAGE_EXTENSIONS = [
-        'aspx',
-        'asp',
-        'cfm',
-        'html',
-        'htm',
-        'jspx',
-        'jsp',
-        'php',
-    ];
-
     protected const DEFAULT_SUBSITE_TABLES = [
         'blogmeta' => null,
         'blogs' => null,

@@ -29,3 +29,12 @@ div.box {
 div.box.source {
     margin-bottom: 0.5rem;
 }
+button.btn-test {
+    padding: 0 8px;
+    max-height: 30px;
+    margin-left: 3px
+}
+.shift-1rem {
+    position: relative;
+    left: -1rem;
+}
