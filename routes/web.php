@@ -3,6 +3,7 @@
 use App\Services\DatabaseService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 /*
@@ -21,9 +22,22 @@ Route::get('/', function () {
 });
 
 Route::get('/dev', function () {
-    DatabaseService::setDb('wpsandbox');
+    $path = '/Users/MPemburn/Sandbox/wpsandbox';
+    $does = file_exists($path);
+
+    if ($does) {
+        $themesPath = $path . '/wp-content/themes';
+        $prefix = \App\Helpers\WordPressHelper::getPrefix($path);
+        $themes = \App\Helpers\WordPressHelper::getThemesArray($themesPath);
+
+        !d($prefix);
+        !d($themes);
+    }
 });
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/db_test', [App\Http\Controllers\UiController::class, 'dbExists'])->name('db_test');
+Route::get('/path_test', [App\Http\Controllers\UiController::class, 'pathExists'])->name('path_test');
+Route::get('/url_test', [App\Http\Controllers\UiController::class, 'urlExists'])->name('url_test');

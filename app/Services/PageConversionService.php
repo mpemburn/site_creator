@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\CurlHelper;
 use App\Helpers\ImageHelper;
 use App\Helpers\RegexHelper;
 use App\Models\Post;
@@ -95,7 +96,7 @@ class PageConversionService
 
     protected function saveImage($imgSrc): ?string
     {
-        if (! CurlService::testUrl($this->info->url . $imgSrc)) {
+        if (! CurlHelper::testUrl($this->info->url . $imgSrc)) {
             return null;
         }
         $binary = file_get_contents($this->info->url . $imgSrc);

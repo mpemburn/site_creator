@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+use App\Helpers\CurlHelper;
 use App\Models\Post;
 
 class HeaderService
@@ -50,8 +51,8 @@ class HeaderService
         foreach (current($matches) as $match) {
             preg_match('/(' . $attribute . '=")([^">]+)(")/', $match, $href);
             $url = isset($href[2]) ? $this->info->url . ($href[2]) : null;
-            if (CurlService::testUrl($url)) {
-                $content = CurlService::getContent($url);
+            if (CurlHelper::testUrl($url)) {
+                $content = CurlHelper::getContent($url);
                 $target[] = $content;
             }
 

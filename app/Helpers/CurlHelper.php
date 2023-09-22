@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Helpers;
 
-class CurlService
+class CurlHelper
 {
     public static function testUrl(string $url): bool
     {

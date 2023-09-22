@@ -13,7 +13,8 @@
     padding: .5em 1em .5em 0;
     flex: 1;
 }
-.form-row > input {
+.form-row > input,
+.form-row > select {
     flex: 2;
     max-height: 2rem;
 }
