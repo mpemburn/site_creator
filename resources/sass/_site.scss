@@ -34,6 +34,12 @@ button.btn-test {
     max-height: 30px;
     margin-left: 3px
 }
+button.valid {
+    background-color: #00cc00;
+}
+button.invalid {
+    background-color: #0d6efd;
+}
 .shift-1rem {
     position: relative;
     left: -1rem;
