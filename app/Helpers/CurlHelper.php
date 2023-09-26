@@ -16,11 +16,12 @@ class CurlHelper
         return ((int) $code) === 200;
     }
 
-    public static function getContents(string $url): string
+    public static function getContents(string $url, bool $noFollow = true): string
     {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_REFERER, 'http://www.example.com/1');
         curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $noFollow);
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");

@@ -11,8 +11,8 @@
                             <input @keyup="testUrl" type="text" ref="sourceUrl" name="sourceUrl" required>
                             <button @click.prevent="testUrl" class="btn btn-primary btn-sm btn-test valid" :class="isValid.url_test ? 'valid' : 'invalid'">Test</button>
                         </li>
-                        <li class="form-row">
-                            <label for="home">Home Page<br>(if not index.html)</label>
+                        <li v-if="isValid.url_test" class="form-row">
+                            <label for="home">Home Page</label>
                             <input @keyup="testHome" v-model="homePage" type="text" ref="home" name="home" :disabled=homeDisabled>
                             <button v-if="foundHome" @click.prevent="testHome" class="btn btn-primary btn-sm btn-test" :class="isValid.home_test ? 'valid' : 'invalid'">Test</button>
                             <button v-else @click.prevent="findHome" class="btn btn-primary btn-sm btn-test">Find</button>
@@ -47,7 +47,7 @@
                             </select>
                         </li>
                         <li class="form-row">
-                            <button @click="createSite" class="btn btn-primary btn-sm">Submit</button>
+                            <button @click.prevent="createSite" class="btn btn-primary btn-sm" :disabled="! canSubmit">Submit</button>
                         </li>
                     </ul>
                 </div>
@@ -75,6 +75,19 @@ export default {
             },
             isHomeLoading: false,
             foundHome: false,
+            canSubmit: false,
+        }
+    },
+    watch: {
+        isValid: {
+            deep: true,
+            handler: function (tests) {
+                this.canSubmit = true;
+                Object.entries(tests).forEach(([key, value]) => {
+                    this.canSubmit = this.canSubmit & value;
+                })
+                console.log(this.canSubmit)
+            }
         }
     },
     methods: {
@@ -126,6 +139,7 @@ export default {
                     console.log(response.data);
                     let data = response.data;
 
+                    // Flag the current test as success if it is.
                     self.isValid[endpoint] = data.success;
 
                     if (! data.success) {
@@ -148,6 +162,15 @@ export default {
                 });
         },
         createSite() {
+            axios.post('/create_site', {
+                url: this.$refs.sourceUrl.value,
+                home: this.$refs.home.value,
+                db: this.$refs.db.value,
+                path: this.$refs.path.value,
+                theme: this.$refs.theme.value,
+            }).then(response => {
+                console.log(response);
+            });
 
         }
     },

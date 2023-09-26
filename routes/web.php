@@ -1,11 +1,16 @@
 <?php
 
+use App\Events\OrderStatusUpdated;
+use App\Helpers\CurlHelper;
+use App\Helpers\FileHelper;
 use App\Helpers\SourceHelper;
 use App\Services\DatabaseService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Process;
+use Illuminate\Process\Pool;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,9 +28,6 @@ Route::get('/', function () {
 });
 
 Route::get('/dev', function () {
-    $url = 'https://www2.clarku.edu/faculty/sgranados/Home.html';
-    $info = pathinfo($url);
-    !d($info);
 });
 
 Auth::routes();
@@ -36,3 +38,4 @@ Route::get('/path_test', [App\Http\Controllers\UiController::class, 'pathExists'
 Route::get('/url_test', [App\Http\Controllers\UiController::class, 'urlExists'])->name('url_test');
 Route::get('/find_home', [App\Http\Controllers\UiController::class, 'findHome'])->name('find_home');
 Route::get('/home_test', [App\Http\Controllers\UiController::class, 'homeExists'])->name('home_test');
+Route::post('/create_site', [App\Http\Controllers\SiteCreatorController::class, 'createSite'])->name('create_site');
